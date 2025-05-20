@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carrito de Compras</title>
+</head>
+<body>
+    <h1>Carrito de Compras</h1>
+    <ul>
+        {% for item in carrito %}
+            <li>
+                {{ item.producto.nombre }} - ${{ item.producto.precio }} x {{ item.cantidad }} = ${{ item.subtotal }}
+            </li>
+        {% endfor %}
+    </ul>
+    <p>Total: ${{ total }}</p>
+    <a href="{% url 'pagar' %}">Pagar</a>
+    <a href="{% url 'lista_productos' %}">Seguir Comprando</a>
+</body>
+</html>
