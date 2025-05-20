@@ -13,7 +13,30 @@
         {% endfor %}
     </ul>
     <p>Total: ${{ total }}</p>
-    <a href="{% url 'pagar' %}">Pagar</a>
+
+    <form method="get" style="margin-bottom: 10px;">
+        <button type="submit" name="convertir" value="dolar">Convertir a Dólar</button>
+        <button type="submit" name="convertir" value="euro">Convertir a Euro</button>
+    </form>
+
+    {% if error_dolar %}
+        <p style="color:red;">{{ error_dolar }}</p>
+    {% elif valor_dolar and total_usd %}
+        <p>Valor dólar hoy: ${{ valor_dolar|floatformat:2 }}</p>
+        <p>Total en dólares: ${{ total_usd|floatformat:2 }}</p>
+        <a href="{% url 'pagar' %}?moneda=usd">Pagar en Dólares</a>
+    {% endif %}
+
+    {% if error_euro %}
+        <p style="color:red;">{{ error_euro }}</p>
+    {% elif valor_euro and total_eur %}
+        <p>Valor euro hoy: ${{ valor_euro|floatformat:2 }}</p>
+        <p>Total en euros: €{{ total_eur|floatformat:2 }}</p>
+        <a href="{% url 'pagar' %}?moneda=eur">Pagar en Euros</a>
+    {% endif %}
+
+    <a href="{% url 'pagar' %}?moneda=clp">Pagar en Pesos Chilenos</a>
     <a href="{% url 'lista_productos' %}">Seguir Comprando</a>
+    <a href="{% url 'pagar_webpay' %}">Pagar con Webpay (Prueba)</a>
 </body>
 </html>
