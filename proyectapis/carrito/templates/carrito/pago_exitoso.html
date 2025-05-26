@@ -6,5 +6,20 @@
 <body>
     <h1>¡Gracias por tu compra!</h1>
     <a href="{% url 'lista_productos' %}">Volver a la tienda</a>
+
+    {% if boleta %}
+        <h2>Boleta: {{ boleta.codigo }}</h2>
+        <p>Usuario: {{ boleta.usuario_id_unico }}</p>
+        <p>Fecha: {{ boleta.fecha }}</p>
+        <p>Total: ${{ boleta.total }}</p>
+        <ul>
+            {% for detalle in boleta.detalles.all %}
+                <li>{{ detalle.producto.nombre }} - Cantidad: {{ detalle.cantidad }} - Precio unitario: ${{ detalle.precio }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'descargar_boleta_pdf' boleta.codigo %}" class="btn btn-primary" target="_blank">
+            Descargar Boleta en PDF
+        </a>
+    {% endif %}
 </body>
 </html>

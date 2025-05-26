@@ -29,22 +29,13 @@ class ProductoDeleteView(DeleteView):
     success_url = reverse_lazy('producto_list')
 
 class ProductoListAPIView(APIView):
-    """
-    API para listar todos los productos.
-    """
     def get(self, request):
         productos = Producto.objects.all()
         serializer = ProductoSerializer(productos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ProductoDetailAPIView(APIView):
-    """
-    API para obtener detalles de un producto específico.
-    """
     def get(self, request, pk):
-        try:
-            producto = Producto.objects.get(pk=pk)
-            serializer = ProductoSerializer(producto)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Producto.DoesNotExist:
-            return Response({"error": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        producto = get_object_or_404(Producto, pk=pk)
+        serializer = ProductoSerializer(producto)
+        return Response(serializer.data)
