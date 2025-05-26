@@ -1,0 +1,86 @@
+Aplicación web de inventario/venta de productos con Webpay
+
+Guía de instalación, configuración y uso
+
+1) Requisitos:
+
+    - Python 3.11 o superior
+    - pip (gestor de paquetes de Python)
+    - Git (opcional, para clonar el repositorio)
+    - Acceso a Internet para instalar dependencias
+
+2) Instalación:
+
+    a) Clona el repositorio o descarga el código fuente y navega a la carpeta "proyectapis":
+        git clone https://github.com/joamendoza/ProyectoAPIS.git
+        cd ProyectoAPIS/proyectapis
+
+    b) Crea y activa un entorno virtual:
+        python -m venv venv
+        # En Linux/Mac:
+        source venv/bin/activate
+        # En Windows:
+        venv\Scripts\activate
+
+    c) Instala las dependencias:
+        pip install -r requirements.txt
+
+3) Configuración:
+
+    a) Realiza las migraciones de la base de datos:
+        python manage.py migrate
+
+    b) Crea un superusuario para el panel de administración:
+        python manage.py createsuperuser
+
+4) Ejecución del servidor de desarrollo:
+
+    python manage.py runserver
+
+    Accede a la aplicación en: http://127.0.0.1:8000/
+
+5) Interacción con la aplicación:
+
+    a) Inventario:
+        - Ver productos: http://127.0.0.1:8000/inventario/
+        - Agregar producto: http://127.0.0.1:8000/inventario/nuevo/
+        - Editar/eliminar producto: Desde la lista de productos
+
+    b) Carrito de Compras:
+        - Ver productos y añadir al carrito: http://127.0.0.1:8000/producto/
+        - Ver carrito: http://127.0.0.1:8000/producto/carrito/
+        - Eliminar productos o cantidades desde la vista del carrito
+
+    c) Pago con Webpay:
+        - Desde el carrito, haz clic en "Pagar con Webpay"
+        - Sigue el flujo de pago de Webpay
+        - Al finalizar, se genera una boleta y se descuenta el stock
+
+    d) Boleta y PDF:
+        - Tras un pago exitoso, se muestra la boleta en pantalla
+        - Puedes descargar la boleta en PDF haciendo clic en el botón correspondiente
+
+6) API REST:
+
+    a) Listar productos:
+        curl http://127.0.0.1:8000/inventario/api/productos/ (En la consola)
+        http://127.0.0.1:8000/inventario/api/productos/ (en el navegador)
+
+    b) Detalle de un producto:
+        curl http://127.0.0.1:8000/inventario/api/productos/1/ (Reemplaza 1 por el ID del producto)(En la consola)
+        http://127.0.0.1:8000/inventario/api/productos/1/ (Reemplaza 1 por el ID del producto)(en el navegador)
+
+        b.2) Respuesta esperada:
+
+            {
+                "id": 1,
+                "nombre": "Martillo",
+                "categoria": "herramientas",
+                "descripcion": "Martillo de acero",
+                "precio": 5000,
+                "stock": 10
+            }
+
+7) Panel de Administración:
+
+    - Accede a http://127.0.0.1:8000/admin/ con tu superusuario para gestionar productos, boletas, etc.
