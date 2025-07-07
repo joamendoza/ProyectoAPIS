@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirigiendo a Webpay - Ferremas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h3><i class="fas fa-credit-card me-2"></i>Procesando Pago</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                        <h4 class="mb-3">Redirigiendo a Webpay...</h4>
+                        <p class="text-muted mb-4">
+                            Serás redirigido a la plataforma de pago segura de Webpay para completar tu compra.
+                        </p>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Total a pagar:</strong> ${{ total|floatformat:0 }}
+                        </div>
+                        
+                        <!-- Formulario de redirección automática -->
+                        <form id="webpayForm" method="POST" action="{{ webpay_url }}">
+                            <input type="hidden" name="token_ws" value="{{ token }}">
+                            <button type="submit" class="btn btn-primary btn-lg" id="continueBtn">
+                                <i class="fas fa-arrow-right me-2"></i>Continuar a Webpay
+                            </button>
+                        </form>
+                        
+                        <div class="mt-4">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Transacción segura protegida por Webpay
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="/venta/" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a la Tienda
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Redirección automática después de 3 segundos
+        setTimeout(function() {
+            document.getElementById('webpayForm').submit();
+        }, 3000);
+        
+        // Cambiar texto del botón
+        setTimeout(function() {
+            document.getElementById('continueBtn').innerHTML = 
+                '<i class="fas fa-spinner fa-spin me-2"></i>Redirigiendo...';
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -1,15 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Eliminar Producto</title>
-</head>
-<body>
-    <h1>Eliminar Producto</h1>
-    <p>¿Estás seguro de que deseas eliminar "{{ object.nombre }}"?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Eliminar</button>
-    </form>
-    <a href="{% url 'producto_list' %}">Cancelar</a>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Producto - Ferremas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/typography.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ferremas-base.css' %}">
+    <style>
+        /* Sticky Footer */
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex: 1;
+        }
+        
+        /* Delete form específico */
+        .delete-header {
+            background: var(--error-gradient);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .delete-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .product-info {
+            background: #f8f9fa;
+            border-radius: var(--border-radius-sm);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .warning-icon {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+    
+        /* Efecto de ciclo brillante celeste para el carrito */
+        
+        }
+        
+        }</h5>
+                            <p class="mb-1">
+                                <i class="fas fa-tag me-2"></i>
+                                <strong>Categoría:</strong> {{ object.categoria }}
+                            </p>
+                            <p class="mb-1">
+                                <i class="fas fa-dollar-sign me-2"></i>
+                                <strong>Precio:</strong> ${{ object.precio|floatformat:0 }}
+                            </p>
+                            {% if object.descripcion %}
+                            <p class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Descripción:</strong> {{ object.descripcion|truncatewords:15 }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Esta acción no se puede deshacer.</strong> 
+                            El producto será eliminado permanentemente del inventario.
+                        </div>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="btn-actions">
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="fas fa-trash me-2"></i>Confirmar Eliminación
+                                </button>
+                                <a href="{% url 'producto_list' %}" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-section">
+                    <h5><i class="fas fa-tools me-2"></i>Ferremas</h5>
+                    <p>Tu ferretería de confianza desde 1985. Ofrecemos productos de alta calidad para todos tus proyectos de construcción y hogar.</p>
+                    <div class="social-links">
+                        <a href="#" class="text-muted me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-muted"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 footer-section">
+                    <h5>Productos</h5>
+                    <ul class="footer-links">
+                        <li><a href="/venta/">Catálogo</a></li>
+                        <li><a href="/api/productos/" target="_blank">API Productos</a></li>
+                        <li><a href="/crear-producto/">Crear Producto</a></li>
+                        <li><a href="/actualizar-stock/">Actualizar Stock</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 footer-section">
+                    <h5>Sucursales</h5>
+                    <ul class="footer-links">
+                        <li><a href="/inventario/">Inventario</a></li>
+                        <li><a href="/api/sucursales/" target="_blank">API Sucursales</a></li>
+                        <li><a href="/api/sucursales/1/inventario/" target="_blank">Centro</a></li>
+                        <li><a href="/api/sucursales/2/inventario/" target="_blank">Maipú</a></li>
+                        <li><a href="/api/sucursales/3/inventario/" target="_blank">Las Condes</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 footer-section">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Av. Principal 123, Santiago, Chile</p>
+                    <p><i class="fas fa-phone me-2"></i>+56 2 1234 5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@ferremas.cl</p>
+                    <p><i class="fas fa-clock me-2"></i>Lun-Vie: 8:00-18:00, Sáb: 9:00-14:00</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="mb-0">© 2025 Ferremas. Todos los derechos reservados. | API REST desarrollada con Django y MongoDB</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js">
+        // Función para actualizar el estado visual del carrito
+        async function updateCartVisualState() {
+            try {
+                const response = await fetch('/carrito/count/');
+                if (response.ok) {
+                    const data = await response.json();
+                    const cartButton = document.getElementById('cart-button');
+                    if (data.count > 0) {
+                        cartButton.classList.add('cart-has-items');
+                    } else {
+                        cartButton.classList.remove('cart-has-items');
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating cart state:', error);
+            }
+        }
+        
+        // Actualizar estado visual al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartVisualState();
+        });
+    </script>
 </body>
 </html>

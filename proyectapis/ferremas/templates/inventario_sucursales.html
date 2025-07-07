@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferremas - Inventario por Sucursales</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/typography.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ferremas-base.css' %}">
+    <style>
+        .sucursal-card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        .sucursal-card:hover {
+            transform: translateY(-5px);
+        }
+        .sucursal-header {
+            background: var(--secondary-gradient);
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 1.5rem;
+        }
+        .producto-item {
+            border-left: 4px solid #007bff;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .stock-badge {
+            font-size: var(--font-size-lg);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-xl);
+            font-weight: var(--font-weight-bold);
+        }
+        .stock-alto {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .stock-medio {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .stock-bajo {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .stock-agotado {
+            background-color: #f5c6cb;
+            color: #721c24;
+        }
+        .hero-section {
+            background: var(--hero-gradient);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+        .stats-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1rem;
+        }
+        .stats-number {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            color: #667eea;
+        }
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            padding: 0.5rem 0;
+            min-width: 280px;
+        }
+        .dropdown-header {
+            font-weight: var(--font-weight-bold);
+            color: #2c3e50;
+            padding: 0.75rem 1rem 0.5rem;
+            margin-bottom: 0.25rem;
+            font-size: var(--font-size-sm);
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+        .dropdown-item:hover {
+            background: var(--secondary-gradient);
+            color: white;
+            transform: translateX(5px);
+        }
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+        .dropdown-divider {
+            margin: 0.5rem 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        /* Efecto de ciclo brillante celeste para el carrito */
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/venta/">
+                <i class="fas fa-tools me-2"></i>Ferremas
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-code me-1"></i>API
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><h6 class="dropdown-header"><i class="fas fa-box me-2"></i>Productos</h6></li>
+                            <li><a class="dropdown-item" href="/api/productos/" target="_blank">
+                                <i class="fas fa-list me-2"></i>Listar Productos
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/venta/" target="_blank">
+                                <i class="fas fa-shopping-cart me-2"></i>Productos para Venta
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-store me-2"></i>Sucursales</h6></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/" target="_blank">
+                                <i class="fas fa-building me-2"></i>Listar Sucursales
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/1/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Centro
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/2/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Maipú
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/3/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Las Condes
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-search me-2"></i>Consultas</h6></li>
+                            <li><a class="dropdown-item" href="/api/productos/TALADRO-001/sucursales/" target="_blank">
+                                <i class="fas fa-map-marker-alt me-2"></i>Producto en Sucursales
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/?sucursalid=1" target="_blank">
+                                <i class="fas fa-filter me-2"></i>Productos por Sucursal
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/?productoid=TALADRO-001" target="_blank">
+                                <i class="fas fa-info-circle me-2"></i>Detalle de Producto
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-edit me-2"></i>Operaciones</h6></li>
+                            <li><a class="dropdown-item" href="/crear-producto/">
+                                <i class="fas fa-plus-circle me-2"></i>Crear Producto
+                            </a></li>
+                            <li><a class="dropdown-item" href="/actualizar-stock/">
+                                <i class="fas fa-edit me-2"></i>Actualizar Stock
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/venta/">
+                            <i class="fas fa-shopping-bag me-1"></i>Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/inventario/">
+                            <i class="fas fa-warehouse me-1"></i>Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="/carrito/" id="cart-button">
+                            <i class="fas fa-shopping-cart me-1"></i>Carrito
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold">
+                <i class="fas fa-warehouse me-3"></i>Inventario por Sucursales
+            </h1>
+            <p class="lead">Gestiona el inventario de todas nuestras sucursales</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3">Cargando inventario...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="alert alert-danger d-none" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <!-- Inventario Grid -->
+        <div id="inventarioGrid" class="d-none">
+            <!-- Las tarjetas de sucursales se cargarán aquí dinámicamente -->
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Datos del inventario desde Django
+        const sucursalesData = {{ sucursales_json|safe }};
+        
+        // Función para mostrar loading
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('d-none');
+            document.getElementById('inventarioGrid').classList.add('d-none');
+            document.getElementById('errorState').classList.add('d-none');
+        }
+        
+        // Función para ocultar loading
+        function hideLoading() {
+            document.getElementById('loadingState').classList.add('d-none');
+        }
+        
+        // Función para mostrar error
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorState').classList.remove('d-none');
+            document.getElementById('inventarioGrid').classList.add('d-none');
+            hideLoading();
+        }
+        
+        // Función para ocultar error
+        function hideError() {
+            document.getElementById('errorState').classList.add('d-none');
+        }
+        
+        // Función para mostrar el inventario
+        function displayInventario() {
+            const grid = document.getElementById('inventarioGrid');
+            grid.innerHTML = '';
+            
+            if (!sucursalesData || sucursalesData.length === 0) {
+                showError('No hay datos de inventario disponibles');
+                return;
+            }
+            
+            sucursalesData.forEach(sucursal => {
+                const card = createSucursalCard(sucursal);
+                grid.appendChild(card);
+            });
+            
+            hideLoading();
+            hideError();
+            grid.classList.remove('d-none');
+        }
+        
+        // Función para crear tarjeta de sucursal
+        function createSucursalCard(sucursal) {
+            const card = document.createElement('div');
+            card.className = 'sucursal-card';
+            
+            const productosConStock = sucursal.productos.filter(p => p.cantidad > 0);
+            const stockTotal = sucursal.productos.reduce((sum, p) => sum + p.cantidad, 0);
+            
+            card.innerHTML = `
+                <div class="sucursal-header">
+                    <h3><i class="fas fa-store me-2"></i>${sucursal.nombre}</h3>
+                    <p class="mb-0">${sucursal.direccion}</p>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <small class="opacity-75">Total Productos:</small>
+                            <div class="fw-bold">${sucursal.total_productos}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="opacity-75">Con Stock:</small>
+                            <div class="fw-bold">${productosConStock.length}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="opacity-75">Stock Total:</small>
+                            <div class="fw-bold">${stockTotal}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    ${createProductosHTML(sucursal.productos)}
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Función para crear HTML de productos
+        function createProductosHTML(productos) {
+            if (!productos || productos.length === 0) {
+                return '<p class="text-muted">No hay productos en esta sucursal</p>';
+            }
+            
+            return productos.map(producto => `
+                <div class="producto-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h6 class="mb-1">${producto.nombre}</h6>
+                            <small class="text-muted">${producto.marca} - ${producto.modelo}</small>
+                            <br>
+                            <small class="text-muted">Categoría: ${producto.categoria}</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-end">
+                                <div class="fw-bold">$${producto.precio_actual.toLocaleString('es-CL')}</div>
+                                <small class="text-muted">Precio actual</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-end">
+                                <span class="stock-badge ${getStockClass(producto.cantidad)}">
+                                    ${producto.cantidad} unidades
+                                </span>
+                                <br>
+                                <small class="text-muted">Última actualización: ${producto.ultima_actualizacion}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Función para obtener clase de stock
+        function getStockClass(cantidad) {
+            if (cantidad === 0) return 'stock-agotado';
+            if (cantidad < 5) return 'stock-bajo';
+            if (cantidad < 20) return 'stock-medio';
+            return 'stock-alto';
+        }
+        
+        // Función para actualizar estado del carrito
+        async function updateCartVisualState() {
+            try {
+                const response = await fetch('/carrito/count/');
+                if (response.ok) {
+                    const data = await response.json();
+                    const cartButton = document.getElementById('cart-button');
+                    if (data.count > 0) {
+                        cartButton.classList.add('cart-has-items');
+                    } else {
+                        cartButton.classList.remove('cart-has-items');
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating cart state:', error);
+            }
+        }
+        
+        // Inicializar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Inicializando inventario...');
+            console.log('Datos recibidos:', sucursalesData);
+            
+            if (sucursalesData && sucursalesData.length > 0) {
+                displayInventario();
+            } else {
+                showError('No hay datos de inventario disponibles');
+            }
+              updateCartVisualState();
+        });
+    </script>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-tools me-2"></i>Ferremas</h5>
+                    <p>Tu ferretería de confianza desde 1995</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-phone me-2"></i>+56 2 1234 5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>contacto@ferremas.cl</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Horarios</h5>
+                    <p>Lunes a Viernes: 8:00 - 19:00</p>
+                    <p>Sábados: 9:00 - 17:00</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

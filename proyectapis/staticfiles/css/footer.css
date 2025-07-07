@@ -1,0 +1,130 @@
+/* CSS para Footer Sticky Unificado - Ferremas */
+
+/* Variables CSS para consistencia */
+:root {
+    --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    --secondary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    --hero-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --shadow-sm: 0 2px 10px rgba(0,0,0,0.1);
+    --shadow-md: 0 5px 15px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+    --border-radius: 15px;
+    --border-radius-sm: 8px;
+    --border-radius-xl: 25px;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Configuración básica para sticky footer */
+html {
+    height: 100%;
+    font-family: var(--font-family);
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Contenedor principal que ocupará todo el espacio disponible */
+.main-content {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos del footer simplificado y unificado */
+.footer,
+footer,
+footer.bg-dark {
+    flex-shrink: 0;
+    background: var(--primary-gradient) !important;
+    color: white;
+    padding: 2rem 0;
+    margin-top: auto;
+    box-shadow: var(--shadow-sm);
+}
+
+.footer h5,
+footer h5,
+footer.bg-dark h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.footer p,
+footer p,
+footer.bg-dark p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.footer .text-muted,
+footer .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.footer a,
+footer a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover,
+footer a:hover {
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .footer,
+    footer,
+    footer.bg-dark {
+        padding: 1.5rem 0;
+    }
+    
+    .footer h5,
+    footer h5,
+    footer.bg-dark h5 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Asegurar que el contenido principal tenga altura mínima */
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Para páginas con mucho contenido */
+.page-content {
+    flex: 1;
+    padding-bottom: 2rem;
+}
+
+/* Espaciado adicional antes del footer */
+.pre-footer-spacing {
+    margin-bottom: 2rem;
+}
+
+/* Ocultar badge del carrito en las vistas de carrito */
+body.carrito-page .badge,
+body.carrito-view .badge {
+    display: none !important;
+}
+
+/* Clase para identificar páginas de carrito */
+.carrito-page .nav-link .badge,
+.carrito-view .nav-link .badge {
+    display: none !important;
+}

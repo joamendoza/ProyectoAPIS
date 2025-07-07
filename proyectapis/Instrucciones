@@ -1,6 +1,8 @@
-Aplicación web de inventario/venta de productos con Webpay
+Aplicación web de inventario/venta de productos con Webpay y MongoDB
 
 Guía de instalación, configuración y uso
+
+IMPORTANTE: Este proyecto utiliza MongoDB Atlas como base de datos principal.
 
 1) Requisitos:
 
@@ -8,6 +10,7 @@ Guía de instalación, configuración y uso
     - pip (gestor de paquetes de Python)
     - Git (opcional, para clonar el repositorio)
     - Acceso a Internet para instalar dependencias
+    - Cuenta de MongoDB Atlas (ya configurada en el proyecto)
 
 2) Instalación:
 
@@ -27,11 +30,16 @@ Guía de instalación, configuración y uso
 
 3) Configuración:
 
-    a) Realiza las migraciones de la base de datos:
+    NOTA: Este proyecto NO requiere migraciones tradicionales ya que usa MongoDB.
+    
+    a) (Opcional) Para funcionalidades de Django Admin, ejecuta:
         python manage.py migrate
-
-    b) Crea un superusuario para el panel de administración:
+        
+    b) (Opcional) Crea un superusuario para el panel de administración:
         python manage.py createsuperuser
+        
+    c) Para poblar la base de datos MongoDB con datos de ejemplo:
+        python manage.py poblar_mongo
 
 4) Ejecución del servidor de desarrollo:
 
@@ -41,46 +49,254 @@ Guía de instalación, configuración y uso
 
 5) Interacción con la aplicación:
 
-    a) Inventario:
-        - Ver productos: http://127.0.0.1:8000/inventario/
-        - Agregar producto: http://127.0.0.1:8000/inventario/nuevo/
-        - Editar/eliminar producto: Desde la lista de productos
+    ===== PÁGINAS PRINCIPALES =====
 
-    b) Carrito de Compras:
-        - Ver productos y añadir al carrito: http://127.0.0.1:8000/producto/
-        - Ver carrito: http://127.0.0.1:8000/producto/carrito/
-        - Eliminar productos o cantidades desde la vista del carrito
+    a) Página Principal y Productos:
+        - Página principal: http://127.0.0.1:8000/
+        - Catálogo de productos: http://127.0.0.1:8000/venta/
+        - Lista de productos para carrito: http://127.0.0.1:8000/carrito/productos/
 
-    c) Pago con Webpay:
-        - Desde el carrito, haz clic en "Pagar con Webpay"
-        - Sigue el flujo de pago de Webpay
-        - Al finalizar, se genera una boleta y se descuenta el stock
+    b) Gestión de Inventario:
+        - Ver inventario por sucursales: http://127.0.0.1:8000/inventario/
+        - Crear nuevo producto: http://127.0.0.1:8000/crear-producto/
+        - Actualizar stock: http://127.0.0.1:8000/actualizar-stock/
 
-    d) Boleta y PDF:
+    c) Carrito de Compras:
+        - Ver carrito: http://127.0.0.1:8000/carrito/
+        - Agregar productos al carrito desde: http://127.0.0.1:8000/venta/
+
+    d) Proceso de Pago:
+        - Desde el carrito, haz clic en "Procesar Compra"
+        - Pago con Webpay: Se integra automáticamente
+        - Página de éxito: http://127.0.0.1:8000/compra-exitosa/
+        - Página de error: http://127.0.0.1:8000/compra-rechazada/
+
+    e) Boletas y Documentos:
         - Tras un pago exitoso, se muestra la boleta en pantalla
-        - Puedes descargar la boleta en PDF haciendo clic en el botón correspondiente
+        - Descarga PDF disponible desde la página de confirmación
 
-6) API REST:
+6) API REST con MongoDB:
 
-    a) Listar productos:
-        curl http://127.0.0.1:8000/inventario/api/productos/ (En la consola)
-        http://127.0.0.1:8000/inventario/api/productos/ (en el navegador)
+    ===== ENDPOINTS PRINCIPALES =====
 
-    b) Detalle de un producto:
-        curl http://127.0.0.1:8000/inventario/api/productos/1/ (Reemplaza 1 por el ID del producto)(En la consola)
-        http://127.0.0.1:8000/inventario/api/productos/1/ (Reemplaza 1 por el ID del producto)(en el navegador)
+    a) Información de la API:
+        - Base API: http://127.0.0.1:8000/api/
+        - Documentación completa en: API_ENDPOINTS.md
 
-        b.2) Respuesta esperada:
+    b) Consultar Productos:
+        - Todos los productos: http://127.0.0.1:8000/api/productos/
+        - Productos para venta: http://127.0.0.1:8000/api/productos/venta/
+        - Producto específico: http://127.0.0.1:8000/api/productos/?productoid=TALADRO-001
+        - Por sucursal: http://127.0.0.1:8000/api/productos/?sucursalid=1
 
-            {
-                "id": 1,
-                "nombre": "Martillo",
-                "categoria": "herramientas",
-                "descripcion": "Martillo de acero",
-                "precio": 5000,
-                "stock": 10
-            }
+    c) Consultar Sucursales:
+        - Todas las sucursales: http://127.0.0.1:8000/api/sucursales/
+        - Inventario por sucursal: http://127.0.0.1:8000/api/sucursales/1/inventario/
 
-7) Panel de Administración:
+    d) Operaciones con Headers (PowerShell):
+        # Crear producto:
+        $headers = @{
+            "Content-Type" = "application/json"
+            "password" = "centro123"
+            "adminpassword" = "admin123"
+        }
+        $body = @{
+            "_id" = "PRODUCTO-001"
+            "marca" = "TestMarca"
+            "nombre" = "Producto de Prueba"
+            "precio" = 10000
+            "cantidad" = 50
+        } | ConvertTo-Json
+        Invoke-WebRequest -Uri "http://127.0.0.1:8000/api/productos/1/" -Method POST -Headers $headers -Body $body
 
-    - Accede a http://127.0.0.1:8000/admin/ con tu superusuario para gestionar productos, boletas, etc.
+    e) Consultar Boletas:
+        - Todas las boletas: http://127.0.0.1:8000/api/boletas/
+        - Boleta específica: http://127.0.0.1:8000/api/boletas/BOL-1704672000-1234/
+        - Estadísticas: http://127.0.0.1:8000/api/boletas/estadisticas/
+        - Filtros disponibles: ?fecha_desde=2024-01-01&fecha_hasta=2024-12-31&sucursal_id=1&estado=completada
+
+    ===== CREDENCIALES DE SUCURSALES =====
+    - Sucursal 1 (Centro): centro123
+    - Sucursal 2 (Maipú): maipu123  
+    - Sucursal 3 (Las Condes): condes123
+    - Administrador: admin123
+
+7) Base de Datos MongoDB:
+
+    ===== INFORMACIÓN DE CONEXIÓN =====
+    - URL: mongodb+srv://Admin:Admin@integracionpl.jwyptq0.mongodb.net/Ferremas
+    - Base de Datos: Ferremas
+    - Colecciones: productos, sucursales, administradores
+
+    ===== PRODUCTOS DE EJEMPLO =====
+    Los siguientes productos están disponibles por defecto:
+    - TALADRO-001: Taladro Percutor 13mm 600W (Bosch)
+    - SIERRA-002: Sierra Circular 7-1/4" 1600W (DeWalt)
+    - TORNILLO-003: Tornillo Autoperforante 6x60mm (Hilti)
+    - PINTURA-004: Pintura Látex Blanco Semi-Mate (Sherwin Williams)
+    - CABLE-005: Cable Eléctrico NYA 12 AWG (Procobre)
+    - CASCO-006: Casco de Seguridad Industrial (3M)
+    - MARTILLO-007: Martillo de Carpintero 16 oz (Stanley)
+    - BROCA-008: Set de Brocas para Metal HSS (Makita)
+
+8) Características del Sistema:
+
+    ===== FUNCIONALIDADES PRINCIPALES =====
+    - ✅ Catálogo de productos con búsqueda en tiempo real
+    - ✅ Gestión de inventario por sucursales
+    - ✅ Carrito de compras con persistencia
+    - ✅ Integración con Webpay para pagos
+    - ✅ Generación de boletas en PDF
+    - ✅ API REST completa con MongoDB
+    - ✅ Interfaz web responsiva y moderna
+    - ✅ Sistema de autenticación por sucursales
+
+    ===== NAVEGACIÓN UNIFICADA =====
+    Todas las páginas incluyen:
+    - Navbar con acceso a API endpoints
+    - Dropdown con operaciones CRUD
+    - Enlaces directos a inventario y carrito
+    - Footer con información de contacto
+    - Diseño responsive y moderno
+    - Tipografía consistente (Inter/system fonts)
+    - Colores corporativos unificados
+
+    ===== TEMPLATES ACTIVOS (10 principales) =====
+    1. productos_venta.html - Página principal de productos
+    2. inventario_sucursales.html - Gestión de inventario
+    3. crear_producto_form.html - Formulario crear producto
+    4. actualizar_stock_form.html - Formulario actualizar stock
+    5. carrito_mongo.html - Vista del carrito
+    6. compra_exitosa.html - Confirmación de compra
+    7. compra_rechazada.html - Compra rechazada
+    8. lista_productos_mongo.html - Lista para agregar al carrito
+    9. producto_list.html - Lista de productos (inventario)
+    10. producto_form.html - Formulario de productos
+
+9) Panel de Administración:
+
+    - Accede a http://127.0.0.1:8000/admin/ con tu superusuario
+    - NOTA: El panel de admin es principalmente para gestión de Django
+    - La gestión de productos se hace através de la interfaz web y API
+
+10) Resolución de Problemas:
+
+    ===== PROBLEMAS COMUNES =====
+    
+    a) Error de conexión a MongoDB:
+        - Verifica tu conexión a internet
+        - MongoDB Atlas está preconfigurado en el proyecto
+        
+    b) Templates no se cargan:
+        - Ejecuta: python manage.py collectstatic --noinput
+        
+    c) Error al poblar datos:
+        - Ejecuta: python manage.py poblar_mongo
+        
+    d) Problemas con el carrito:
+        - Verifica que las cookies estén habilitadas
+        - El carrito se persiste por sesión
+        - Reinicia el servidor si hay problemas de sesión
+    
+    ===== ARCHIVOS IMPORTANTES =====
+    - API_ENDPOINTS.md: Documentación completa de la API
+    - TEMPLATES_ACTIVOS_FINALES.md: Lista de templates utilizados
+    - requirements.txt: Dependencias del proyecto
+    - credenciales.txt: Credenciales de acceso
+    - mongo_config.py: Configuración de MongoDB
+    - webpay_integration.py: Integración con sistema de pagos
+
+11) Información del Proyecto:
+
+    ===== DETALLES TÉCNICOS =====
+    - Versión de Django: 5.2.1
+    - Base de datos: MongoDB Atlas (Ferremas)
+    - Sistema de pagos: Webpay Plus
+    - Autenticación: Por sucursal con passwords
+    - Sesiones: Persistencia de carrito por cookie
+    - Templates: 10 templates activos unificados
+    - Arquitectura: API REST + Frontend web
+
+    ===== ESTRUCTURA DE ARCHIVOS CLAVE =====
+    proyectapis/
+    ├── ferremas/
+    │   ├── templates/ (10 templates activos)
+    │   ├── mongo_views.py (vistas principales)
+    │   ├── mongo_urls.py (URLs de API)
+    │   └── web_urls.py (URLs web)
+    ├── carrito/
+    │   ├── templates/carrito/ (templates del carrito)
+    │   ├── views_mongo.py (vistas del carrito)
+    │   └── urls_mongo.py (URLs del carrito)
+    └── proyectapis/
+        ├── settings.py (configuración MongoDB)
+        └── urls.py (configuración principal)
+
+12) Credenciales y Accesos:
+
+    ===== MONGODB ATLAS =====
+    - Usuario: Admin
+    - Contraseña: Admin
+    - Cluster: IntegracionPl
+    - Base de datos: Ferremas
+    - Conexión: mongodb+srv://Admin:Admin@integracionpl.jwyptq0.mongodb.net/
+
+    ===== WEBPAY PLUS =====
+    - Ambiente: Testing (sandbox)
+    - Integración: API REST
+    - Códigos de comercio: Configurados automáticamente
+    
+    ===== TARJETAS DE PRUEBA WEBPAY =====
+    Para realizar pruebas de pago en el ambiente de testing:
+    
+    🔸 VISA (Aprobada):
+    - Número: 4051 8856 0000 0005
+    - CVV: 123
+    - Fecha vencimiento: Cualquier fecha futura
+    - Resultado: Transacción APROBADA
+    
+    🔸 MASTERCARD (Aprobada):
+    - Número: 5186 0595 0000 0000
+    - CVV: 123
+    - Fecha vencimiento: Cualquier fecha futura
+    - Resultado: Transacción APROBADA
+    
+    🔸 VISA (Rechazada):
+    - Número: 4051 8842 3993 7763
+    - CVV: 123
+    - Fecha vencimiento: Cualquier fecha futura
+    - Resultado: Transacción RECHAZADA
+    
+    🔸 MASTERCARD (Rechazada):
+    - Número: 5186 0395 0000 0000
+    - CVV: 123
+    - Fecha vencimiento: Cualquier fecha futura
+    - Resultado: Transacción RECHAZADA
+    
+    🔸 Datos del tarjetahabiente (para todas las tarjetas):
+    - RUT: 11.111.111-1
+    - Nombre: Cualquier nombre
+    - Email: test@test.com
+    - Teléfono: 123456789
+    
+    ⚠️ IMPORTANTE: 
+    - Solo funcionan en ambiente de testing
+    - NO usar en producción
+    - Las transacciones son simuladas
+    - Webpay redirige automáticamente después del pago
+
+    ===== DJANGO ADMIN =====
+    - URL: http://127.0.0.1:8000/admin/
+    - Requiere superusuario (crear con: python manage.py createsuperuser)
+
+
+    ===== ESTADO ACTUAL =====
+    El proyecto está completamente funcional con:
+    - ✅ 10 templates activos unificados
+    - ✅ API REST completamente documentada
+    - ✅ Sistema de carrito funcional
+    - ✅ Integración con Webpay activa
+    - ✅ MongoDB Atlas configurado
+    - ✅ Documentación completa y actualizada
+    - ✅ Navegación consistente en todas las páginas
+    - ✅ Diseño responsive y moderno

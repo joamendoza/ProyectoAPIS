@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferremas - Productos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/ferremas-base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/typography.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <style>
+        /* Variables CSS para unificar estilos */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --secondary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            --hero-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow-sm: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-md: 0 5px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+            --border-radius: 15px;
+            --border-radius-sm: 8px;
+            --border-radius-xl: 25px;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: var(--primary-gradient);
+            box-shadow: var(--shadow-sm);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+            transform: translateY(-2px);
+        }
+        
+        /* Layout específico para la página de ventas */
+        .hero-section {
+            background: var(--hero-gradient);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .product-filters {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        
+        .filter-btn {
+            border: none;
+            border-radius: var(--border-radius-xl);
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            align-items: stretch;
+        }
+        
+        .product-card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Estilos para uniformar el tamaño de las cards */
+        .product-card .card-body {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            padding: 1.5rem;
+        }
+        
+        .product-card .card-body .product-title {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .product-card .card-body .text-muted {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .product-card .card-body .stock-detail {
+            margin-bottom: 1rem;
+        }
+        
+        .product-card .card-body .btn-primary {
+            margin-top: auto;
+            align-self: stretch;
+        }
+        
+        /* Ajustes para elementos de contenido */
+        .product-brand {
+            height: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .product-price {
+            margin: 0.75rem 0;
+            flex-shrink: 0;
+        }
+        
+        .product-stock {
+            margin-bottom: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* Estilos para las imágenes de productos */
+        .product-image {
+            height: 200px;
+            object-fit: cover;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            background-color: #f8f9fa;
+            transition: opacity 0.3s ease;
+        }
+        
+        .product-image:hover {
+            opacity: 0.9;
+        }
+        
+        /* Fallback para imágenes que no cargan */
+        .product-image[src*="placeholder"] {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-weight: 500;
+            text-align: center;
+            border: 2px dashed #ced4da;
+        }
+        
+        /* Estilos adicionales para placeholder */
+        .placeholder-image {
+            border: 2px dashed #ced4da !important;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+        }
+        
+        .product-card:hover .placeholder-image {
+            border-color: #6c757d;
+        }
+        
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-brand {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #e74c3c;
+            margin: 0.5rem 0;
+        }
+        
+        .product-stock {
+            font-size: 0.9rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+        
+        .product-stock.out-of-stock {
+            color: #dc3545;
+        }
+        
+        .btn-primary {
+            background: var(--secondary-gradient);
+            border: none;
+            border-radius: var(--border-radius-xl);
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .modal-content {
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            background: var(--secondary-gradient);
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+        
+        .badge {
+            font-weight: 600;
+            border-radius: var(--border-radius-xl);
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            padding: 0.5rem 0;
+            min-width: 280px;
+        }
+        
+        .dropdown-header {
+            font-weight: 700;
+            color: #2c3e50;
+            padding: 0.75rem 1rem 0.5rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--secondary-gradient);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        /* Efecto de ciclo brillante celeste para el carrito */
+        @keyframes cart-glow {
+            0% {
+                box-shadow: 0 0 5px rgba(0, 191, 255, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(0, 191, 255, 0.8), 0 0 30px rgba(0, 191, 255, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(0, 191, 255, 0.4);
+            }
+        }
+        
+        .cart-has-items {
+            animation: cart-glow 2s ease-in-out infinite;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .cart-has-items:hover {
+            animation-play-state: paused;
+            box-shadow: 0 0 25px rgba(0, 191, 255, 0.9) !important;
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: #e9ecef;
+        }
+        
+        .category-badge {
+            background: var(--secondary-gradient);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius-sm);
+        }
+        
+        .stock-detail small {
+            font-size: 0.8rem;
+        }
+        
+        /* Mensajes de Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1080;
+        }
+        
+        .toast {
+            min-width: 300px;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        .alert-dismissible {
+            padding-right: 3rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/venta/">
+                <i class="fas fa-tools me-2"></i>Ferremas
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-code me-1"></i>API
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><h6 class="dropdown-header"><i class="fas fa-box me-2"></i>Productos</h6></li>
+                            <li><a class="dropdown-item" href="/api/productos/" target="_blank">
+                                <i class="fas fa-list me-2"></i>Listar Productos
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/venta/" target="_blank">
+                                <i class="fas fa-shopping-cart me-2"></i>Productos para Venta
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-store me-2"></i>Sucursales</h6></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/" target="_blank">
+                                <i class="fas fa-building me-2"></i>Listar Sucursales
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/1/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Centro
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/2/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Maipú
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/3/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Las Condes
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-search me-2"></i>Consultas</h6></li>
+                            <li><a class="dropdown-item" href="/api/productos/TALADRO-001/sucursales/" target="_blank">
+                                <i class="fas fa-map-marker-alt me-2"></i>Producto en Sucursales
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/?sucursalid=1" target="_blank">
+                                <i class="fas fa-filter me-2"></i>Productos por Sucursal
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/?productoid=TALADRO-001" target="_blank">
+                                <i class="fas fa-info-circle me-2"></i>Detalle de Producto
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-edit me-2"></i>Operaciones</h6></li>
+                            <li><a class="dropdown-item" href="/crear-producto/">
+                                <i class="fas fa-plus-circle me-2"></i>Crear Producto
+                            </a></li>
+                            <li><a class="dropdown-item" href="/actualizar-stock/">
+                                <i class="fas fa-edit me-2"></i>Actualizar Stock
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/venta/">
+                            <i class="fas fa-shopping-bag me-1"></i>Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/inventario/">
+                            <i class="fas fa-warehouse me-1"></i>Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="/carrito/" id="cart-button">
+                            <i class="fas fa-shopping-cart me-1"></i>Carrito
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-tools me-3"></i>Productos Ferremas
+            </h1>
+            <p class="lead">Las mejores herramientas y materiales de construcción</p>
+            <p class="mb-0">Productos cargados dinámicamente desde MongoDB</p>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">
+                <i class="fas fa-shopping-cart me-2"></i>Nuestros Productos
+            </h2>
+            
+            <!-- Products Grid -->
+            <div id="productsGrid" class="row">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal para seleccionar sucursal -->
+    <div class="modal fade" id="sucursalModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sucursalModalLabel">
+                        <i class="fas fa-store me-2"></i>Seleccionar Sucursal
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Selecciona la sucursal donde deseas retirar el producto:</p>
+                    <div id="producto-info" class="mb-3">
+                        <h6 id="producto-nombre"></h6>
+                        <p class="text-muted" id="producto-descripcion"></p>
+                    </div>
+                    <div id="sucursales-list">
+                        <!-- Las sucursales se cargarán aquí -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Variables globales
+        let allProducts = [];
+        let currentProductId = null;
+        let cartModal = null;
+        let sucursalModal = null;
+        
+        // Inicialización al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 INICIANDO APLICACIÓN FERREMAS');
+            
+            // Inicializar modals
+            initializeModals();
+            
+            // Cargar productos
+            loadProducts();
+            
+            // Actualizar estado del carrito
+            updateCartVisualState();
+            
+            // Configurar eventos globales
+            setupGlobalEvents();
+        });
+
+        // Inicializar modals de Bootstrap
+        function initializeModals() {
+            const sucursalModalElement = document.getElementById('sucursalModal');
+            if (sucursalModalElement) {
+                sucursalModal = new bootstrap.Modal(sucursalModalElement);
+                
+                // Evento para limpiar modal al cerrar
+                sucursalModalElement.addEventListener('hidden.bs.modal', function () {
+                    clearModalContent();
+                });
+            }
+        }
+
+        // Configurar eventos globales
+        function setupGlobalEvents() {
+            // Manejar errores de JavaScript globales
+            window.addEventListener('error', function(event) {
+                console.error('Error global capturado:', event.error);
+            });
+            
+            // Detectar problemas de red
+            window.addEventListener('online', function() {
+                console.log('🟢 Conexión restaurada');
+            });
+            
+            window.addEventListener('offline', function() {
+                console.log('🔴 Conexión perdida');
+                showToast('Conexión perdida. Algunas funciones pueden no funcionar.', 'warning');
+            });
+        }
+
+        // Cargar productos desde la API
+        async function loadProducts() {
+            console.log('📦 Cargando productos desde la API...');
+            
+            try {
+                const response = await fetch('/api/productos/venta/', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                console.log('🌐 Respuesta API:', response.status);
+                
+                if (!response.ok) {
+                    console.error('❌ Error en API:', response.status);
+                    displayErrorMessage(`Error ${response.status}: No se pudieron cargar los productos`);
+                    return;
+                }
+                
+                const products = await response.json();
+                console.log('✅ Productos cargados:', products.length);
+                
+                // Validar estructura de productos
+                if (!Array.isArray(products)) {
+                    console.error('❌ Respuesta no es array válido');
+                    displayErrorMessage('Error: Respuesta de API inválida');
+                    return;
+                }
+                
+                // Procesar productos
+                allProducts = products.map(product => ({
+                    ...product,
+                    _id: product._id || product.id,
+                    stock_total: product.stock_total || 0,
+                    stock_por_sucursal: product.stock_por_sucursal || []
+                }));
+                
+                if (allProducts.length === 0) {
+                    displayNoProducts();
+                } else {
+                    displayProducts(allProducts);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error al cargar productos:', error);
+                displayErrorMessage(`Error de conexión: ${error.message}`);
+            }
+        }
+
+        // Mostrar productos en la grilla
+        function displayProducts(products) {
+            console.log('🎨 Mostrando productos en la grilla...');
+            
+            const grid = document.getElementById('productsGrid');
+            if (!grid) {
+                console.error('❌ No se encontró el elemento productsGrid');
+                return;
+            }
+            
+            // Limpiar grilla
+            grid.innerHTML = '';
+            
+            // Crear tarjetas de productos
+            products.forEach((product, index) => {
+                try {
+                    const productCard = createProductCard(product);
+                    grid.appendChild(productCard);
+                } catch (error) {
+                    console.error(`❌ Error al crear tarjeta para producto ${index}:`, error);
+                }
+            });
+            
+            console.log('✅ Productos mostrados correctamente');
+        }
+
+        // Mostrar mensaje de error
+        function displayErrorMessage(message) {
+            const grid = document.getElementById('productsGrid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger text-center" role="alert">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <h4>Error al cargar productos</h4>
+                            <p>${message}</p>
+                            <button class="btn btn-primary" onclick="loadProducts()">
+                                <i class="fas fa-refresh me-2"></i>Reintentar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Mostrar mensaje cuando no hay productos
+        function displayNoProducts() {
+            const grid = document.getElementById('productsGrid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                            <h3>No hay productos disponibles</h3>
+                            <p class="text-muted">Actualmente no hay productos en la base de datos.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Crear tarjeta de producto con validación robusta
+        function createProductCard(product) {
+            console.log('🏗️ Creando tarjeta para producto:', product.nombre);
+            
+            const col = document.createElement('div');
+            col.className = 'col-lg-4 col-md-6 mb-4';
+            
+            // Validar datos del producto
+            const productName = product.nombre || 'Producto sin nombre';
+            const productBrand = product.marca || 'Sin marca';
+            const productModel = product.modelo || '';
+            const productDescription = product.descripcion || 'Sin descripción';
+            const productCategory = product.categoria || 'Sin categoría';
+            const productPrice = product.precio_actual || 0;
+            const productId = product._id || product.id;
+            
+            // Validar stock
+            const stockTotal = parseInt(product.stock_total) || 0;
+            const isOutOfStock = stockTotal === 0;
+            const stockClass = isOutOfStock ? 'out-of-stock' : '';
+            const stockText = isOutOfStock ? 'Sin stock' : `${stockTotal} en stock`;
+            
+            // Crear información de stock por sucursal
+            let stockPorSucursal = '';
+            if (product.stock_por_sucursal && Array.isArray(product.stock_por_sucursal) && product.stock_por_sucursal.length > 0) {
+                stockPorSucursal = '<div class="stock-detail mt-2 mb-2">';
+                stockPorSucursal += '<small class="text-muted d-block mb-1">Stock por sucursal:</small>';
+                
+                product.stock_por_sucursal.forEach(stock => {
+                    const stockColor = (stock.cantidad > 0) ? 'text-success' : 'text-danger';
+                    const sucursalName = stock.sucursal_nombre || 'Sucursal';
+                    const stockAmount = stock.cantidad || 0;
+                    
+                    stockPorSucursal += `<small class="d-block ${stockColor}">
+                        <i class="fas fa-store me-1"></i>
+                        ${sucursalName}: ${stockAmount}
+                    </small>`;
+                });
+                stockPorSucursal += '</div>';
+            }
+            
+            // Crear imagen con placeholder local
+            const categoryIcon = getCategoryIcon(productCategory);
+            
+            // Crear botón con event listener más robusto
+            const buttonDisabled = isOutOfStock ? 'disabled' : '';
+            const buttonText = isOutOfStock ? 'Sin stock' : 'Agregar al carrito';
+            const buttonClass = isOutOfStock ? 'btn btn-secondary w-100' : 'btn btn-primary w-100';
+            
+            col.innerHTML = `
+                <div class="card product-card">
+                    <div class="card-img-top product-image-placeholder" style="height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; border: 2px dashed #ced4da; color: #6c757d; font-size: 1.1rem; font-weight: 500;">
+                        <div class="text-center">
+                            <i class="${categoryIcon} fa-3x mb-2"></i>
+                            <div>${productCategory}</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="product-title">${productName}</h5>
+                            <span class="category-badge">${productCategory}</span>
+                        </div>
+                        <p class="product-brand">
+                            <i class="fas fa-industry me-1"></i>${productBrand} ${productModel}
+                        </p>
+                        <p class="text-muted small">${productDescription}</p>
+                        <div class="product-price">
+                            $${productPrice.toLocaleString('es-CL')}
+                        </div>
+                        <div class="product-stock ${stockClass}">
+                            <i class="fas fa-box me-1"></i>${stockText}
+                        </div>
+                        ${stockPorSucursal}
+                        <button 
+                            class="${buttonClass}" 
+                            ${buttonDisabled} 
+                            data-product-id="${productId}"
+                            onclick="handleAddToCartClick(this)"
+                            id="btn-${productId}">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            ${buttonText}
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+
+        // Manejar click en botón "Agregar al carrito"
+        function handleAddToCartClick(buttonElement) {
+            console.log('🛒 Click en botón agregar al carrito');
+            
+            try {
+                const productId = buttonElement.getAttribute('data-product-id');
+                console.log('Product ID extraído:', productId);
+                
+                if (!productId) {
+                    console.error('❌ No se encontró product ID en el botón');
+                    showToast('Error: No se pudo identificar el producto', 'danger');
+                    return;
+                }
+                
+                // Prevenir clicks múltiples
+                if (buttonElement.disabled) {
+                    console.log('⚠️ Botón ya está deshabilitado');
+                    return;
+                }
+                
+                // Mostrar modal de selección de sucursal
+                showSucursalModal(productId);
+                
+            } catch (error) {
+                console.error('❌ Error al manejar click:', error);
+                showToast('Error al procesar la solicitud', 'danger');
+            }
+        }
+
+        // Mostrar modal de selección de sucursal (VERSIÓN MEJORADA)
+        function showSucursalModal(productId) {
+            console.log('🏪 === INICIANDO MODAL DE SUCURSAL ===');
+            console.log('Product ID:', productId);
+            
+            try {
+                // Buscar producto en la lista
+                const product = allProducts.find(p => p._id === productId || p.id === productId);
+                
+                if (!product) {
+                    console.error('❌ Producto no encontrado');
+                    console.log('Productos disponibles:', allProducts.map(p => ({id: p._id || p.id, nombre: p.nombre})));
+                    showToast('Error: Producto no encontrado', 'danger');
+                    return;
+                }
+                
+                console.log('✅ Producto encontrado:', product.nombre);
+                console.log('📊 Stock por sucursal:', product.stock_por_sucursal);
+                
+                // Guardar producto actual
+                currentProductId = productId;
+                
+                // Actualizar información del producto en el modal
+                const nombreElement = document.getElementById('producto-nombre');
+                const descripcionElement = document.getElementById('producto-descripcion');
+                
+                if (nombreElement) {
+                    nombreElement.textContent = product.nombre;
+                }
+                if (descripcionElement) {
+                    descripcionElement.textContent = `${product.marca} ${product.modelo}`;
+                }
+                
+                // Crear lista de sucursales
+                buildSucursalesList(product);
+                
+                // Mostrar modal
+                if (sucursalModal) {
+                    sucursalModal.show();
+                    console.log('✅ Modal mostrado');
+                } else {
+                    console.error('❌ Modal no inicializado');
+                    showToast('Error: Modal no disponible', 'danger');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error al mostrar modal:', error);
+                showToast('Error al mostrar opciones de sucursal', 'danger');
+            }
+        }
+
+        // Construir lista de sucursales en el modal
+        function buildSucursalesList(product) {
+            console.log('🏗️ Construyendo lista de sucursales...');
+            
+            const sucursalesList = document.getElementById('sucursales-list');
+            if (!sucursalesList) {
+                console.error('❌ No se encontró elemento sucursales-list');
+                return;
+            }
+            
+            // Limpiar lista
+            sucursalesList.innerHTML = '';
+            
+            // Verificar si hay stock por sucursal
+            if (product.stock_por_sucursal && Array.isArray(product.stock_por_sucursal) && product.stock_por_sucursal.length > 0) {
+                console.log('📦 Procesando stock por sucursal...');
+                
+                let sucursalesConStock = product.stock_por_sucursal.filter(stock => stock.cantidad > 0);
+                
+                if (sucursalesConStock.length === 0) {
+                    // No hay stock en ninguna sucursal
+                    sucursalesList.innerHTML = `
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No hay stock disponible en ninguna sucursal
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Crear tarjetas para cada sucursal con stock
+                sucursalesConStock.forEach(stock => {
+                    const sucursalCard = createSucursalCard(stock, product._id);
+                    sucursalesList.appendChild(sucursalCard);
+                });
+                
+            } else {
+                console.log('⚠️ No hay información de stock por sucursal');
+                // Crear opción genérica
+                const defaultCard = createDefaultSucursalCard(product);
+                sucursalesList.appendChild(defaultCard);
+            }
+            
+            console.log('✅ Lista de sucursales construida');
+        }
+
+        // Crear tarjeta individual de sucursal
+        function createSucursalCard(stock, productId) {
+            const div = document.createElement('div');
+            div.className = 'card mb-2';
+            
+            const sucursalName = stock.sucursal_nombre || 'Sucursal';
+            const stockAmount = stock.cantidad || 0;
+            const sucursalId = stock.sucursal_id;
+            
+            div.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">
+                                <i class="fas fa-store me-2"></i>${sucursalName}
+                            </h6>
+                            <small class="text-success">
+                                <i class="fas fa-box me-1"></i>Stock disponible: ${stockAmount}
+                            </small>
+                        </div>
+                        <button 
+                            class="btn btn-primary btn-sm" 
+                            onclick="addToCartWithSucursal('${productId}', ${sucursalId}, '${sucursalName}')"
+                            data-sucursal-id="${sucursalId}"
+                            data-sucursal-name="${sucursalName}">
+                            <i class="fas fa-plus me-1"></i>Seleccionar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Crear tarjeta por defecto cuando no hay información específica
+        function createDefaultSucursalCard(product) {
+            const div = document.createElement('div');
+            div.className = 'card mb-2';
+            
+            div.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">
+                                <i class="fas fa-store me-2"></i>Sucursal Principal
+                            </h6>
+                            <small class="text-success">
+                                <i class="fas fa-box me-1"></i>Stock: ${product.stock_total || 0}
+                            </small>
+                        </div>
+                        <button 
+                            class="btn btn-primary btn-sm" 
+                            onclick="addToCartWithSucursal('${product._id}', null, 'Sucursal Principal')"
+                            data-sucursal-id="null">
+                            <i class="fas fa-plus me-1"></i>Seleccionar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Agregar producto al carrito con sucursal específica
+        async function addToCartWithSucursal(productId, sucursalId, sucursalName) {
+            console.log('🛍️ === AGREGANDO AL CARRITO ===');
+            console.log('Product ID:', productId);
+            console.log('Sucursal ID:', sucursalId);
+            console.log('Sucursal Name:', sucursalName);
+            
+            try {
+                // Preparar datos para envío
+                const requestData = {
+                    sucursal_id: sucursalId
+                };
+                
+                console.log('📤 Enviando datos:', requestData);
+                
+                // Realizar petición POST al backend
+                const response = await fetch(`/carrito/agregar/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('📥 Respuesta del servidor:', response.status);
+                
+                // Procesar respuesta
+                const data = await response.json();
+                console.log('📊 Datos de respuesta:', data);
+                
+                if (response.ok && data.success) {
+                    // Éxito
+                    const successMessage = data.message || `Producto agregado al carrito desde ${sucursalName}`;
+                    showToast(successMessage, 'success');
+                    
+                    // Actualizar estado del carrito
+                    updateCartVisualState();
+                    
+                    // Cerrar modal
+                    if (sucursalModal) {
+                        sucursalModal.hide();
+                    }
+                    
+                    console.log('✅ Producto agregado exitosamente');
+                    
+                } else {
+                    // Error del servidor
+                    const errorMessage = data.error || data.message || 'Error al agregar el producto';
+                    showToast(errorMessage, 'danger');
+                    console.error('❌ Error del servidor:', errorMessage);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error en la petición:', error);
+                showToast('Error de conexión. Por favor, inténtelo nuevamente.', 'danger');
+            }
+        }
+
+        // Limpiar contenido del modal
+        function clearModalContent() {
+            const nombreElement = document.getElementById('producto-nombre');
+            const descripcionElement = document.getElementById('producto-descripcion');
+            const sucursalesList = document.getElementById('sucursales-list');
+            
+            if (nombreElement) nombreElement.textContent = '';
+            if (descripcionElement) descripcionElement.textContent = '';
+            if (sucursalesList) sucursalesList.innerHTML = '';
+            
+            currentProductId = null;
+        }
+
+        // Actualizar estado visual del carrito
+        function updateCartVisualState() {
+            console.log('🔄 Actualizando estado del carrito...');
+            
+            const cartButton = document.getElementById('cart-button');
+            if (!cartButton) {
+                console.log('⚠️ Botón de carrito no encontrado');
+                return;
+            }
+            
+            fetch('/carrito/estado/', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                console.log('📥 Respuesta del carrito:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Respuesta no es JSON válido');
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                console.log('📊 Datos del carrito recibidos:', data);
+                
+                if (data.success) {
+                    const itemCount = data.itemCount || 0;
+                    
+                    // Actualizar texto del botón
+                    cartButton.innerHTML = `
+                        <i class="fas fa-shopping-cart me-1"></i>
+                        Carrito ${itemCount > 0 ? `(${itemCount})` : ''}
+                    `;
+                    
+                    // Agregar o quitar clase de animación
+                    if (itemCount > 0) {
+                        cartButton.classList.add('cart-has-items');
+                    } else {
+                        cartButton.classList.remove('cart-has-items');
+                    }
+                    
+                    console.log('✅ Estado del carrito actualizado:', itemCount, 'items');
+                } else {
+                    console.log('⚠️ Error en respuesta del carrito:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error al actualizar estado del carrito:', error);
+                
+                // Fallback: usar contador simple
+                fetch('/carrito/count/', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const itemCount = data.count || 0;
+                    cartButton.innerHTML = `
+                        <i class="fas fa-shopping-cart me-1"></i>
+                        Carrito ${itemCount > 0 ? `(${itemCount})` : ''}
+                    `;
+                    
+                    if (itemCount > 0) {
+                        cartButton.classList.add('cart-has-items');
+                    } else {
+                        cartButton.classList.remove('cart-has-items');
+                    }
+                    
+                    console.log('✅ Estado del carrito actualizado (fallback):', itemCount, 'items');
+                })
+                .catch(fallbackError => {
+                    console.error('❌ Error en fallback del carrito:', fallbackError);
+                    
+                    // Último recurso: mostrar carrito sin contador
+                    cartButton.innerHTML = `
+                        <i class="fas fa-shopping-cart me-1"></i>
+                        Carrito
+                    `;
+                });
+            });
+        }
+
+        // Función para obtener ícono de categoría
+        function getCategoryIcon(category) {
+            const categoryMap = {
+                'Herramientas': 'fas fa-wrench',
+                'Construcción': 'fas fa-hard-hat',
+                'Materiales': 'fas fa-cubes',
+                'Eléctrico': 'fas fa-bolt',
+                'Plomería': 'fas fa-faucet',
+                'Pintura': 'fas fa-paint-roller',
+                'Ferretería': 'fas fa-tools',
+                'Jardín': 'fas fa-leaf',
+                'Seguridad': 'fas fa-shield-alt',
+                'Automotriz': 'fas fa-car'
+            };
+            
+            return categoryMap[category] || 'fas fa-box';
+        }
+
+        // Función para obtener cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Sistema de notificaciones Toast mejorado
+        function showToast(message, type = 'info') {
+            console.log(`🔔 Toast: ${message} (${type})`);
+            
+            const toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) return;
+            
+            const toastId = 'toast-' + Date.now();
+            const typeClass = type === 'success' ? 'bg-success' : 
+                             type === 'danger' ? 'bg-danger' : 
+                             type === 'warning' ? 'bg-warning' : 'bg-info';
+            
+            const toastHtml = `
+                <div class="toast ${typeClass} text-white" role="alert" id="${toastId}">
+                    <div class="toast-header">
+                        <strong class="me-auto">
+                            ${type === 'success' ? '✅ Éxito' : 
+                              type === 'danger' ? '❌ Error' : 
+                              type === 'warning' ? '⚠️ Advertencia' : 'ℹ️ Información'}
+                        </strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            
+            // Mostrar toast
+            const toastElement = document.getElementById(toastId);
+            const bsToast = new bootstrap.Toast(toastElement);
+            bsToast.show();
+            
+            // Limpiar después de cerrar
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                toastElement.remove();
+            });
+        }
+
+        // Función de depuración para verificar estado
+        function debugAppState() {
+            console.log('🔍 === DEBUG APP STATE ===');
+            console.log('Productos cargados:', allProducts.length);
+            console.log('Producto actual:', currentProductId);
+            console.log('Modal sucursal:', sucursalModal ? 'Inicializado' : 'No inicializado');
+            console.log('Elementos DOM:', {
+                productsGrid: !!document.getElementById('productsGrid'),
+                sucursalModal: !!document.getElementById('sucursalModal')
+            });
+        }
+
+        // Exponer función de debug globalmente
+        window.debugFerremas = debugAppState;
+    </script>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-tools me-2"></i>Ferremas</h5>
+                    <p>Tu ferretería de confianza desde 1995</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-phone me-2"></i>+56 2 1234 5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>contacto@ferremas.cl</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Horarios</h5>
+                    <p>Lunes a Viernes: 8:00 - 19:00</p>
+                    <p>Sábados: 9:00 - 17:00</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

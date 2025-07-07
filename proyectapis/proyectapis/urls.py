@@ -19,6 +19,20 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('inventario/', include('inventario.urls')),  # Incluye las URLs de la app inventario
-    path('producto/', include('carrito.urls')),  # Incluye las URLs de la app carrito
+    # API de Ferremas con MongoDB
+    path('api/', include('ferremas.mongo_urls')),
+    
+    # Interfaz web de Ferremas (páginas HTML)
+    path('', include('ferremas.web_urls')),
+    
+    # URLs del carrito con Webpay (comentado para usar solo MongoDB)
+    # path('carrito/', include('carrito.urls')),
+    
+    # URLs del carrito con MongoDB
+    path('carrito/', include('carrito.urls_mongo')),
+    
+    # Endpoints SQLite originales (comentados)
+    # path('api/', include('ferremas.urls')),  # Ferremas API con SQLite
+    # path('inventario/', include('inventario.urls')),
+    # path('producto/', include('carrito.urls')),
 ]

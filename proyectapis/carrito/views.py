@@ -4,7 +4,9 @@ import pandas as pd
 import json
 import os
 from datetime import datetime
+from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q
 from inventario.models import Producto
 from .models import Carrito, Boleta, DetalleBoleta
 from django.urls import reverse
@@ -55,21 +57,48 @@ def obtener_moneda(series_code):
         return None, f"Error al consultar el valor de la moneda: {str(e)}"
 
 def lista_productos(request):
-    productos = Producto.objects.all()
-    return render(request, 'carrito/lista_productos.html', {'productos': productos})
+    productos = Producto.objects.all()  # Quitamos el filtro activo ya que este modelo no tiene ese campo
+    search_query = request.GET.get('search', '')
+    
+    if search_query:
+        productos = productos.filter(
+            Q(nombre__icontains=search_query) |
+            Q(categoria__icontains=search_query) |
+            Q(descripcion__icontains=search_query) |
+            Q(marca__icontains=search_query) |
+            Q(modelo__icontains=search_query)
+        )
+    
+    # Información del carrito para Webpay
+    carrito = Carrito.objects.all()
+    total = sum(item.subtotal() for item in carrito)
+    total_items = sum(item.cantidad for item in carrito)
+    
+    context = {
+        'productos': productos,
+        'search_query': search_query,
+        # Información del carrito para Webpay
+        'carrito': carrito,
+        'total': total,
+        'total_precio': total,
+        'total_items': total_items,
+    }
+    return render(request, 'carrito/lista_productos.html', context)
 
 def agregar_al_carrito(request, producto_id):
-    producto = get_object_or_404(Producto, id=producto_id)
+    producto = get_object_or_404(Producto, id_producto=producto_id)
     carrito_item, created = Carrito.objects.get_or_create(producto=producto)
     if not created:
-        if carrito_item.cantidad < producto.stock:
+        stock_actual = producto.get_stock_total()
+        if carrito_item.cantidad < stock_actual:
             carrito_item.cantidad += 1
             carrito_item.save()
             messages.success(request, f"¡{producto.nombre} añadido al carrito!")
         else:
-            messages.error(request, f"No puedes añadir más de {producto.stock} unidades de {producto.nombre}.")
+            messages.error(request, f"No puedes añadir más de {stock_actual} unidades de {producto.nombre}.")
     else:
-        if producto.stock > 0:
+        stock_actual = producto.get_stock_total()
+        if stock_actual > 0:
             carrito_item.cantidad = 1
             carrito_item.save()
             messages.success(request, f"¡{producto.nombre} añadido al carrito!")
@@ -81,7 +110,25 @@ def agregar_al_carrito(request, producto_id):
 def ver_carrito(request):
     carrito = Carrito.objects.all()
     total = sum(item.subtotal() for item in carrito)
-
+    total_items = sum(item.cantidad for item in carrito)
+    
+    # Preparar los datos del carrito para el template
+    carrito_items = []
+    for item in carrito:
+        producto = item.producto
+        carrito_items.append({
+            'id': item.id,
+            'producto_nombre': producto.nombre,
+            'producto_marca': producto.marca,
+            'producto_modelo': producto.modelo,
+            'precio_unitario': producto.get_precio_actual(),
+            'cantidad': item.cantidad,
+            'subtotal': item.subtotal(),
+            'stock_disponible': producto.get_stock_total(),
+            'sucursal_nombre': 'Sucursal Principal',  # Valor por defecto
+            'sucursal_id': 1,  # Valor por defecto
+        })
+    
     valor_dolar = valor_euro = total_usd = total_eur = error_dolar = error_euro = None
 
     if request.GET.get("convertir") == "dolar":
@@ -93,9 +140,12 @@ def ver_carrito(request):
         if valor_euro and total:
             total_eur = float(total) / float(valor_euro)
 
-    return render(request, "carrito/ver_carrito.html", {
+    return render(request, "carrito.html", {
         "carrito": carrito,
+        "carrito_items": carrito_items,  # Datos estructurados para el template
         "total": total,
+        "total_precio": total,  # Precio total
+        "total_items": total_items,  # Cantidad total de items
         "valor_dolar": valor_dolar,
         "total_usd": total_usd,
         "error_dolar": error_dolar,
@@ -110,9 +160,11 @@ def pagar(request):
 
 def iniciar_pago_webpay(request):
     carrito = Carrito.objects.all()
-    amount = sum(item.subtotal() for item in carrito)
+    total = sum(item.subtotal() for item in carrito)
+    amount = int(total)  # Total sin IVA para Webpay
+    
     if amount <= 0:
-        return render(request, 'carrito/pago_fallido.html', {'error': 'El carrito está vacío o el monto es inválido.'})
+        return render(request, 'pago_fallido_mongo.html', {'error': 'El carrito está vacío o el monto es inválido.'})
 
     buy_order = f"orden-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     session_id = "test-session"
@@ -135,12 +187,12 @@ def iniciar_pago_webpay(request):
         print(f"Error de Transbank al iniciar el pago: {e.message}")
         import traceback
         traceback.print_exc()
-        return render(request, 'pago_fallido.html', {'error': str(e.message)})
+        return render(request, 'pago_fallido_mongo.html', {'error': str(e.message)})
     except Exception as e:
         print(f"Error inesperado al iniciar el pago: {e}")
         import traceback
         traceback.print_exc()
-        return render(request, 'pago_fallido.html', {'error': str(e)})
+        return render(request, 'pago_fallido_mongo.html', {'error': str(e)})
     
 def generar_usuario_invitado_unico():
     from .models import Boleta
@@ -152,7 +204,7 @@ def generar_usuario_invitado_unico():
 def webpay_respuesta(request):
     token = request.GET.get('token_ws')
     if not token:
-        return render(request, 'carrito/pago_fallido.html', {'error': 'No se recibió el token de Transbank.'})
+        return render(request, 'pago_fallido_mongo.html', {'error': 'No se recibió el token de Transbank.'})
     options = WebpayOptions(
         commerce_code="597055555532",
         api_key="579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
@@ -164,6 +216,7 @@ def webpay_respuesta(request):
         if response and response.get('response_code') == 0:
             carrito = Carrito.objects.all()
             total = sum(item.subtotal() for item in carrito)
+            
             if request.user.is_authenticated:
                 usuario_id_unico = f"user-{request.user.id}"
             else:
@@ -179,27 +232,25 @@ def webpay_respuesta(request):
                     boleta=boleta,
                     producto=item.producto,
                     cantidad=item.cantidad,
-                    precio=item.producto.precio
+                    precio=item.producto.get_precio_actual()
                 )
-                producto = item.producto
-                producto.stock = max(producto.stock - item.cantidad, 0)
-                producto.save()
+                # Actualizar stock no es necesario aquí ya que el modelo Producto no tiene campo stock directo
             carrito.delete()
-            return render(request, 'carrito/pago_exitoso.html', {'response': response, 'boleta': boleta})
+            return render(request, 'pago_exitoso_mongo.html', {'response': response, 'boleta': boleta})
         else:
             error_message = response.get('response_code_description', 'Pago rechazado o fallido.') if response else 'Respuesta vacía de Transbank.'
-            return render(request, 'carrito/pago_fallido.html', {'error': error_message, 'response': response})
+            return render(request, 'pago_fallido_mongo.html', {'error': error_message, 'response': response})
 
     except TransbankError as e:
         print(f"Error Transbank al procesar la respuesta: {e.message}")
         import traceback
         traceback.print_exc()
-        return render(request, 'carrito/pago_fallido.html', {'error': f"Error Transbank: {e.message}"})
+        return render(request, 'pago_fallido_mongo.html', {'error': f"Error Transbank: {e.message}"})
     except Exception as e:
         print(f"Error inesperado al procesar la respuesta de Transbank: {e}")
         import traceback
         traceback.print_exc()
-        return render(request, 'carrito/pago_fallido.html', {'error': str(e)})
+        return render(request, 'pago_fallido_mongo.html', {'error': str(e)})
 
 @require_POST
 def eliminar_del_carrito(request, item_id):

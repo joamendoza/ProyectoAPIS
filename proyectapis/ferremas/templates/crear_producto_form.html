@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferremas - Crear Producto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/typography.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ferremas-base.css' %}">
+    <style>
+        .form-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            margin: 2rem 0;
+        }
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .btn-primary {
+            background: var(--secondary-gradient);
+            border: none;
+            border-radius: var(--border-radius-xl);
+            padding: 0.75rem 2rem;
+            font-weight: var(--font-weight-semibold);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: none;
+            border-radius: var(--border-radius-xl);
+            padding: 0.75rem 2rem;
+            font-weight: var(--font-weight-semibold);
+            color: #333;
+        }
+        .alert {
+            border-radius: var(--border-radius-sm);
+            border: none;
+        }
+        .form-label {
+            font-weight: var(--font-weight-semibold);
+            color: #495057;
+        }
+        .form-control, .form-select {
+            border-radius: var(--border-radius-sm);
+            border: 2px solid #e9ecef;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .hero-section {
+            background: var(--hero-gradient);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+        .navbar {
+            background: var(--primary-gradient);
+            box-shadow: var(--shadow-sm);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+            transform: translateY(-2px);
+        }
+    
+        /* Efecto de ciclo brillante celeste para el carrito */
+        
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/venta/">
+                <i class="fas fa-tools me-2"></i>Ferremas
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-code me-1"></i>API
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><h6 class="dropdown-header"><i class="fas fa-box me-2"></i>Productos</h6></li>
+                            <li><a class="dropdown-item" href="/api/productos/" target="_blank">
+                                <i class="fas fa-list me-2"></i>Listar Productos
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/venta/" target="_blank">
+                                <i class="fas fa-shopping-cart me-2"></i>Productos para Venta
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-store me-2"></i>Sucursales</h6></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/" target="_blank">
+                                <i class="fas fa-building me-2"></i>Listar Sucursales
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/1/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Centro
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/2/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Maipú
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/sucursales/3/inventario/" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Inventario Las Condes
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-search me-2"></i>Consultas</h6></li>
+                            <li><a class="dropdown-item" href="/api/productos/TALADRO-001/sucursales/" target="_blank">
+                                <i class="fas fa-map-marker-alt me-2"></i>Producto en Sucursales
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/?sucursalid=1" target="_blank">
+                                <i class="fas fa-filter me-2"></i>Productos por Sucursal
+                            </a></li>
+                            <li><a class="dropdown-item" href="/api/productos/?productoid=TALADRO-001" target="_blank">
+                                <i class="fas fa-info-circle me-2"></i>Detalle de Producto
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header"><i class="fas fa-edit me-2"></i>Operaciones</h6></li>
+                            <li><a class="dropdown-item" href="/crear-producto/">
+                                <i class="fas fa-plus-circle me-2"></i>Crear Producto
+                            </a></li>
+                            <li><a class="dropdown-item" href="/actualizar-stock/">
+                                <i class="fas fa-edit me-2"></i>Actualizar Stock
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/venta/">
+                            <i class="fas fa-shopping-bag me-1"></i>Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/inventario/">
+                            <i class="fas fa-warehouse me-1"></i>Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="/carrito/" id="cart-button">
+                            <i class="fas fa-shopping-cart me-1"></i>Carrito
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold">
+                <i class="fas fa-plus-circle me-3"></i>Crear Nuevo Producto
+            </h1>
+            <p class="lead">Agrega nuevos productos al inventario del sistema</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="form-container">
+            <h2 class="form-title">
+                <i class="fas fa-box me-2"></i>Información del Producto
+            </h2>
+
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+            
+            {% if success %}
+                <div class="alert alert-success" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ success }}
+                </div>
+            {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="producto_id" class="form-label">
+                                        <i class="fas fa-barcode me-2"></i>ID del Producto
+                                    </label>
+                                    <input type="text" class="form-control" id="producto_id" name="producto_id" required
+                                           placeholder="Ej: PRODUCTO-001">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="marca" class="form-label">
+                                        <i class="fas fa-tag me-2"></i>Marca
+                                    </label>
+                                    <input type="text" class="form-control" id="marca" name="marca" required
+                                           placeholder="Ej: Bosch">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="modelo" class="form-label">
+                                        <i class="fas fa-cogs me-2"></i>Modelo
+                                    </label>
+                                    <input type="text" class="form-control" id="modelo" name="modelo" required
+                                           placeholder="Ej: GSB 13 RE">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="categoria" class="form-label">
+                                        <i class="fas fa-th-large me-2"></i>Categoría
+                                    </label>
+                                    <select class="form-select" id="categoria" name="categoria" required>
+                                        <option value="">Seleccionar categoría</option>
+                                        <option value="herramientas">Herramientas</option>
+                                        <option value="materiales">Materiales</option>
+                                        <option value="tornillos">Tornillos</option>
+                                        <option value="seguridad">Seguridad</option>
+                                        <option value="electricidad">Electricidad</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">
+                                <i class="fas fa-box me-2"></i>Nombre del Producto
+                            </label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required
+                                   placeholder="Ej: Taladro Percutor 13mm 600W">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">
+                                <i class="fas fa-align-left me-2"></i>Descripción
+                            </label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
+                                      placeholder="Descripción detallada del producto..."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="precio" class="form-label">
+                                        <i class="fas fa-dollar-sign me-2"></i>Precio (CLP)
+                                    </label>
+                                    <input type="number" class="form-control" id="precio" name="precio" required
+                                           placeholder="Ej: 89990" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cantidad" class="form-label">
+                                        <i class="fas fa-boxes me-2"></i>Cantidad Inicial
+                                    </label>
+                                    <input type="number" class="form-control" id="cantidad" name="cantidad" required
+                                           placeholder="Ej: 15" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="sucursal_id" class="form-label">
+                                        <i class="fas fa-store me-2"></i>Sucursal
+                                    </label>
+                                    <select class="form-select" id="sucursal_id" name="sucursal_id" required>
+                                        <option value="">Seleccionar sucursal</option>
+                                        {% for sucursal in sucursales %}
+                                            <option value="{{ sucursal.pk }}">{{ sucursal.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">
+                                        <i class="fas fa-key me-2"></i>Password Sucursal
+                                    </label>
+                                    <input type="password" class="form-control" id="password" name="password" required
+                                           placeholder="Password de la sucursal">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="admin_password" class="form-label">
+                                <i class="fas fa-user-shield me-2"></i>Password Administrador
+                            </label>
+                            <input type="password" class="form-control" id="admin_password" name="admin_password" required
+                                   placeholder="Password del administrador">
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/venta/" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Crear Producto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-tools me-2"></i>Ferremas</h5>
+                    <p>Tu ferretería de confianza desde 1995</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-phone me-2"></i>+56 2 1234 5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>contacto@ferremas.cl</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Horarios</h5>
+                    <p>Lunes a Viernes: 8:00 - 19:00</p>
+                    <p>Sábados: 9:00 - 17:00</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para actualizar el estado visual del carrito
+        async function updateCartVisualState() {
+            try {
+                const response = await fetch('/carrito/count/');
+                if (response.ok) {
+                    const data = await response.json();
+                    const cartButton = document.getElementById('cart-button');
+                    if (data.count > 0) {
+                        cartButton.classList.add('cart-has-items');
+                    } else {
+                        cartButton.classList.remove('cart-has-items');
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating cart state:', error);
+            }
+        }
+        
+        // Actualizar estado visual al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartVisualState();
+        });
+    </script>
+</body>
+</html>
